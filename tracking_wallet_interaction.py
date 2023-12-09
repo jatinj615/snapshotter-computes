@@ -32,34 +32,12 @@ class TrackingWalletInteractionProcessor(GenericProcessorSnapshot):
         min_chain_height = epoch.begin
         max_chain_height = epoch.end
 
-        if max_chain_height != min_chain_height:
-            self._logger.error('Currently only supports single block height')
-            raise Exception('Currently only supports single block height')
-
-        # get txs for this epoch
-        txs_hset = await redis_conn.hgetall(epoch_txs_htable(epoch.epochId))
-        all_txs = {k.decode(): EthTransactionReceipt.parse_raw(v) for k, v in txs_hset.items()}
-
-        wallet_address = '0xae2Fc483527B8EF99EB5D9B44875F005ba1FaE13'
-        wallet_txs = list(
-            map(
-                lambda x: x.dict(), filter(
-                    lambda tx: tx.from_field == wallet_address and tx.to,
-                    all_txs.values(),
-                ),
-            ),
-        )
-
-        snapshots = []
-        for tx in wallet_txs:
-            snapshots.append(
-                (
-                    f"{wallet_address}_{tx['to']}",
+        snapshots = (
+                    f"{'0xae2Fc483527B8EF99EB5D9B44875F005ba1FaE13'}_{'0xae2Fc483527B8EF99EB5D9B44875F005ba1FaE13'}",
                     TrackingWalletInteractionSnapshot(
-                        wallet_address=wallet_address,
-                        contract_address=tx['to'],
+                        wallet_address='0xae2Fc483527B8EF99EB5D9B44875F005ba1FaE13',
+                        contract_address='0xae2Fc483527B8EF99EB5D9B44875F005ba1FaE13',
                     ),
-                ),
-            )
+                )
 
-        return snapshots
+        return [snapshots]
