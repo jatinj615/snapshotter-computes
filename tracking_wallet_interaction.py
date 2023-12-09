@@ -5,14 +5,18 @@ from typing import Union
 
 from redis import asyncio as aioredis
 
+from .utils.eth2 import BeaconNode
 from .utils.event_log_decoder import EventLogDecoder
 from .utils.models.message_models import TrackingWalletInteractionSnapshot
+from .utils.models.data_models import ValidatorStateSnapshot
 from snapshotter.utils.callback_helpers import GenericProcessorSnapshot
 from snapshotter.utils.default_logger import logger
+from .utils.helpers import getValidatorsSnapshots
 from snapshotter.utils.models.message_models import EthTransactionReceipt
 from snapshotter.utils.models.message_models import PowerloomSnapshotProcessMessage
 from snapshotter.utils.redis.redis_keys import epoch_txs_htable
 from snapshotter.utils.rpc import RpcHelper
+from snapshotter.settings.config import settings
 
 
 class TrackingWalletInteractionProcessor(GenericProcessorSnapshot):
@@ -28,16 +32,7 @@ class TrackingWalletInteractionProcessor(GenericProcessorSnapshot):
         redis_conn: aioredis.Redis,
         rpc_helper: RpcHelper,
 
-    ) -> Union[None, List[Tuple[str, TrackingWalletInteractionSnapshot]]]:
-        min_chain_height = epoch.begin
-        max_chain_height = epoch.end
-
-        snapshots = (
-                    f"{'0xae2Fc483527B8EF99EB5D9B44875F005ba1FaE13'}_{'0xae2Fc483527B8EF99EB5D9B44875F005ba1FaE13'}",
-                    TrackingWalletInteractionSnapshot(
-                        wallet_address='0xae2Fc483527B8EF99EB5D9B44875F005ba1FaE13',
-                        contract_address='0xae2Fc483527B8EF99EB5D9B44875F005ba1FaE13',
-                    ),
-                )
-
-        return [snapshots]
+    ) -> Union[None, List[Tuple[str, ValidatorStateSnapshot]]]:
+        beacon = BeaconNode(settings.rpc)
+        validators = beacon.get_validators()
+        return getValidatorsSnapshots(validators[-300:])
