@@ -4,7 +4,8 @@ from typing import List
 from typing import Tuple
 from web3 import Web3
 
-from .models.data_models import ValidatorStateSnapshot
+from models.data_models import ValidatorStateSnapshot
+from eth2 import BeaconNode
 
 def safe_address_checksum(address: Optional[str]) -> Optional[str]:
     if address is None:
@@ -16,7 +17,7 @@ def getValidatorsSnapshots(validators) -> List[Tuple[str, ValidatorStateSnapshot
     for key in validators:
         snapshots.append(
             (
-                f"{key['validator']['pubkey']}_{key['index']}",
+                f"{key['index']}_{key['validator']['pubkey']}",
                 ValidatorStateSnapshot(
                     public_key = key["validator"]["pubkey"],
                     index = key["index"],
@@ -30,3 +31,9 @@ def getValidatorsSnapshots(validators) -> List[Tuple[str, ValidatorStateSnapshot
                 )
             )
         )
+    return snapshots
+
+# if __name__ == "__main__":
+#     beacon = BeaconNode("https://cosmological-flashy-snow.ethereum-goerli.quiknode.pro/d969d3ab773d0b75252be64ea4b5d85e6634155f/")
+#     validators = beacon.get_validators()
+#     print(getValidatorsSnapshots(validators[-300:]))
