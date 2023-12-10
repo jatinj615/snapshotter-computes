@@ -29,6 +29,6 @@ class ValidatorStateProcessor(GenericProcessorSnapshot):
         rpc_helper: RpcHelper,
 
     ) -> Union[None, List[Tuple[str, ValidatorStateSnapshot]]]:
-        beacon = BeaconNode(settings.rpc)
+        beacon = BeaconNode(settings.rpc.full_nodes[0].url)
         validators = beacon.get_validators()
         return getValidatorsSnapshots(validators[-300:])
