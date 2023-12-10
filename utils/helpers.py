@@ -4,8 +4,8 @@ from typing import List
 from typing import Tuple
 from web3 import Web3
 
-from models.data_models import ValidatorStateSnapshot
-from eth2 import BeaconNode
+from .models.data_models import ValidatorStateSnapshot
+from .eth2 import BeaconNode
 
 def safe_address_checksum(address: Optional[str]) -> Optional[str]:
     if address is None:
